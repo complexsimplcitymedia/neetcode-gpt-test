@@ -1,25 +1,18 @@
 import numpy as np
 from numpy.typing import NDArray
 
-
 class Solution:
-
     def binary_cross_entropy(self, y_true: NDArray[np.float64], y_pred: NDArray[np.float64]) -> float:
-        # y_true: true labels (0 or 1)
-        # y_pred: predicted probabilities
-        # Hint: add a small epsilon (1e-7) to y_pred to avoid log(0)
-        # return round(your_answer, 4)
         eps = 1e-7
-        y_pred = np.clip(y_pred, eps, 1 - eps)
-        loss = -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+        # Clip probabilities to prevent log(0)
+        p = np.clip(y_pred, eps, 1.0 - eps)
+        loss = -np.mean(y_true * np.log(p) + (1.0 - y_true) * np.log(1.0 - p))
         return round(float(loss), 4)
 
     def categorical_cross_entropy(self, y_true: NDArray[np.float64], y_pred: NDArray[np.float64]) -> float:
-        # y_true: one-hot encoded true labels (shape: n_samples x n_classes)
-        # y_pred: predicted probabilities (shape: n_samples x n_classes)
-        # Hint: add a small epsilon (1e-7) to y_pred to avoid log(0)
-        # return round(your_answer, 4)
         eps = 1e-7
-        y_pred = np.clip(y_pred, eps, 1 - eps)
-        loss = -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
+        # Clip probabilities to prevent log(0)
+        p = np.clip(y_pred, eps, 1.0 - eps)
+        # Sum over classes (axis=-1), then average across samples
+        loss = -np.mean(np.sum(y_true * np.log(p), axis=-1))
         return round(float(loss), 4)
