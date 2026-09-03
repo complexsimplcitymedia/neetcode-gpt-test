@@ -45,8 +45,7 @@ class SingleHeadAttention(nn.Module):
         q = self.query_gen(embedded)
         v = self.value_gen(embedded)
         scores = q @ torch.transpose(k, 1, 2)
-        head_size = k.shape[2]
-        scores = scores / (head_size ** 0.5)
+        scores = scores / (k.shape[2] ** 0.5)
         context_length = k.shape[1]
         lower_triangular = torch.tril(torch.ones(context_length, context_length, device=embedded.device))
         mask = lower_triangular == 0
@@ -61,6 +60,7 @@ class VanillaNeuralNetwork(nn.Module):
         self.up_projection = nn.Linear(model_dim, model_dim * 4)
         self.relu = nn.ReLU()
         self.down_projection = nn.Linear(model_dim * 4, model_dim)
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, x: TensorType[float]) -> TensorType[float]:
-        return self.down_projection(self.relu(self.up_projection(x)))
+        return self.dropout(self.down_projection(self.relu(self.up_projection(x))))
